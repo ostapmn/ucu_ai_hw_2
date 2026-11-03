@@ -1,6 +1,6 @@
 ---
-title: Homework 1 -- Your Title Here
-author: John Doe
+title: Homework 2
+author: Mnykh Ostap & Mykhailo Brytan
 course: Artificial Intelligence · UCU
 date: 2026-10-12
 ---
@@ -27,7 +27,7 @@ def accuracy(y_true, y_pred):
 ## Results
 
 | Model    | Accuracy | F1   |
-|----------|----------|------|
+| -------- | -------- | ---- |
 | Baseline | 0.71     | 0.68 |
 | Ours     | 0.84     | 0.82 |
 
