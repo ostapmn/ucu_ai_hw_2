@@ -21,8 +21,8 @@ GRAY = 114
 ROOT = Path(__file__).resolve().parent.parent
 
 
-def _find_dir(base, marker, name=None, depth=4):
-    """Шукає під base теку, у якій лежить marker (і, якщо задано, з іменем name)."""
+def _find_dir(base, marker, accept=None, depth=4):
+    """Шукає під base теку, у якій лежить marker (і яку приймає accept)."""
     base = Path(base)
     if not base.exists():
         return None
@@ -31,9 +31,36 @@ def _find_dir(base, marker, name=None, depth=4):
             root = hit.parent
             for _ in Path(marker).parts[:-1]:
                 root = root.parent
-            if name is None or root.name == name:
+            if accept is None or accept(root):
                 return root
     return None
+
+
+def _prepared_in_inputs(prep_name, inputs="/kaggle/input"):
+    want_1280 = "1280" in prep_name
+
+    def accept(root):
+        return ("1280" in root.name) == want_1280 and (root / "train").is_dir()
+
+    flat = _find_dir(inputs, "val/annotations_eval.json", accept)
+    if flat is not None:
+        return flat, False
+    nested = _find_dir(inputs, "val/val/annotations_eval.json", accept)
+    return nested, nested is not None
+
+
+def _link_prepared(src, dst):
+    dst.mkdir(parents=True, exist_ok=True)
+    for name in ("train", "val", "test"):
+        inner = src / name / name
+        link = dst / name
+        if not link.exists():
+            link.symlink_to(inner if inner.exists() else src / name)
+    for name in ("data.yaml", "anchors_960.json"):
+        link = dst / name
+        if (src / name).exists() and not link.exists():
+            link.symlink_to(src / name)
+    return dst
 
 
 def paths(prep_name="prepared"):
@@ -50,7 +77,9 @@ def paths(prep_name="prepared"):
         data = (_find_dir("/kaggle/input", "test_images.csv") if kaggle else None) or ROOT / "data"
     prep = os.environ.get("HW2_PREPARED") if prep_name == "prepared" else None
     if prep is None:
-        found = _find_dir("/kaggle/input", "val/annotations_eval.json", name=prep_name) if kaggle else None
+        found, nested = _prepared_in_inputs(prep_name) if kaggle else (None, False)
+        if found is not None and nested:
+            found = _link_prepared(found, Path("/kaggle/working") / prep_name)
         prep = found or (Path("/kaggle/working") / prep_name if kaggle else ROOT / prep_name)
     out = os.environ.get("HW2_OUT") or (Path("/kaggle/working/runs") if kaggle else ROOT / "runs")
     p = SimpleNamespace(root=ROOT, data=Path(data), prep=Path(prep), out=Path(out),
