@@ -1,5 +1,9 @@
 .DS_Store
 data/
 prepared/
+prepared_1280/
+runs/
+wandb/
+*.pt
 .ipynb_checkpoints/
 __pycache__/
