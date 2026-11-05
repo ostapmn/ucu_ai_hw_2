@@ -1,0 +1,4 @@
+ultralytics==8.4.202
+pycocotools>=2.0.7
+faster-coco-eval>=1.6
+ensemble-boxes==1.0.10
