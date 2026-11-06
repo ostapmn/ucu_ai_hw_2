@@ -177,7 +177,7 @@ def all_results(P):
     """Усі збережені результати: поточний запуск, code/results у репо і виходи інших ноутбуків на Kaggle."""
     dirs = [Path(P.results), c.ROOT / "code" / "results"]
     if P.kaggle:
-        dirs += sorted(Path("/kaggle/input").glob("*/runs/results")) + sorted(Path("/kaggle/input").glob("*/*/runs/results"))
+        dirs += c.input_runs("results")
     df = load_results(*[d for d in dirs if d.exists()])
     if len(df):
         df = df.sort_values("time").drop_duplicates("name", keep="last").reset_index(drop=True)
@@ -267,5 +267,5 @@ def find_run_file(P, rel):
     """Шукає файл runs/<rel> у поточному запуску, а на Kaggle ще й у виходах інших ноутбуків."""
     cands = [Path(P.out) / rel]
     if P.kaggle:
-        cands += sorted(Path("/kaggle/input").glob(f"*/runs/{rel}")) + sorted(Path("/kaggle/input").glob(f"*/*/runs/{rel}"))
+        cands += c.input_runs(rel)
     return next((p for p in cands if p.exists()), None)

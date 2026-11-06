@@ -89,6 +89,12 @@ def paths(prep_name="prepared"):
     return p
 
 
+def input_runs(rel, inputs="/kaggle/input"):
+    """Шляхи runs/<rel> у змонтованих Input: /kaggle/input/<x>/runs, <x>/<y>/runs і <x>/<y>/<z>/runs (datasets/<власник>/<назва>)."""
+    base = Path(inputs)
+    return [hit for depth in (1, 2, 3) for hit in sorted(base.glob("/".join(["*"] * depth + ["runs", rel])))]
+
+
 def restore_from_inputs(p, sub):
     """Kaggle: копіює runs/<sub> з попередньої версії ноутбука, доданої як Input, у /kaggle/working.
 
@@ -99,7 +105,7 @@ def restore_from_inputs(p, sub):
     import shutil
     dst = p.out / sub
     copied = []
-    for src in sorted(Path("/kaggle/input").glob(f"*/runs/{sub}")) + sorted(Path("/kaggle/input").glob(f"*/*/runs/{sub}")):
+    for src in input_runs(sub):
         for run in src.iterdir():
             if run.is_dir() and not (dst / run.name).exists():
                 shutil.copytree(run, dst / run.name)
