@@ -149,8 +149,8 @@ def predict_prepared(model, prep, split="val", imgsz=960, conf=0.001, iou=0.7, m
     prep = Path(prep)
     meta = c.load_json(prep / split / "annotations_coco.json")["images"][::every]
     dets, speed = [], []
-    for i in range(0, len(meta), 256):
-        chunk = meta[i:i + 256]
+    for i in range(0, len(meta), batch):
+        chunk = meta[i:i + batch]
         files = [str(prep / split / im["file_name"]) for im in chunk]
         res = model.predict(files, imgsz=imgsz, conf=conf, iou=iou, max_det=max_det, batch=batch,
                             augment=augment, verbose=False, stream=True)
