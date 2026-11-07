@@ -7,3 +7,5 @@ wandb/
 *.pt
 .ipynb_checkpoints/
 __pycache__/
+.unlazy/
+GATES.md
